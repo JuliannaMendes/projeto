@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InovaTech</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTzeHkSGGekamu4JeT_maGV4aRcPyVNak",
+            authDomain: "techevent-aad01.firebaseapp.com",
+            projectId: "techevent-aad01",
+            storageBucket: "techevent-aad01.appspot.com",
+            messagingSenderId: "931405721420",
+            appId: "1:931405721420:web:3d5c15239bb37a2b72a9e9",
+            measurementId: "G-9Z461K8EY1"
+        };
+
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Função para buscar os dados dos participantes
+        async function buscarParticipantes() {
+            const participantesRef = collection(db, 'participantes');
+            const snapshot = await getDocs(participantesRef);
+            const dados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            // Adiciona os dados na tabela
+            adicionarDadosTabela(dados);
+        }
+
+        // Função para preencher a tabela com os dados do Firestore
+        function adicionarDadosTabela(dados) {
+            const tbody = document.getElementById('corpoTabela');
+            dados.forEach(participante => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${participante.nome}</td>
+                    <td>${participante.email}</td>
+                    <td>${participante.telefone}</td>
+                    <td>${participante.cidade}</td>
+                    <td>${participante.estado}</td>
+                    <td>${participante.bairro}</td>
+                    <td>${participante.cep}</td>
+                    <td>${participante.timestamp ? new Date(participante.timestamp.seconds * 1000).toLocaleString() : ''}</td>
+                    <td>${participante.evento || 'N/A'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Chama a função para buscar os participantes assim que a página carregar
+        window.onload = buscarParticipantes;
+    </script>
+</head>
+<body>
+    <h1>Administração</h1>
+    <table id="corpoTabela">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Cidade</th>
+                <th>Estado</th>
+                <th>Bairro</th>
+                <th>CEP</th>
+                <th>Data de Inscrição</th>
+                <th>Evento</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</body>
+</html>
